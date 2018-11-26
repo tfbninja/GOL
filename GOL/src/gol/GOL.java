@@ -1,5 +1,7 @@
 package gol;
 
+import java.util.Arrays;
+
 /**
  *
  * @author Tim Barber
@@ -10,23 +12,7 @@ public class GOL {
         System.out.println("\nTim Barber\tNov 2018\n"); //Header
 
         Grid grid = new Grid();
-        int[][] test = {
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-        grid.setPlayArea(test);
-        System.out.println(grid);
-        for (int i = 0; i < 10; i++) {
-            grid.nextGen();
-            System.out.println(grid);
-        }
+        System.out.println(Arrays.deepToString(grid.getSavedPlayArea()));
     }
 
 }

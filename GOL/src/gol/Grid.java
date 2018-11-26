@@ -1,5 +1,7 @@
 package gol;
 
+import java.util.Arrays;
+
 /**
  *
  * @author Tim Barber
@@ -10,12 +12,17 @@ public class Grid {
     private int length;
     private int[][] playArea;
     private int[][] lastPlayArea;
+    private static int[][] savedPlayArea;
 
     public Grid() {
         this.width = 10;
         this.length = 10;
         this.playArea = new int[this.width][this.length];
         this.lastPlayArea = this.playArea;
+        this.savedPlayArea = new int[this.width][this.length];
+        for (int i = 0; i < this.width; i++) {
+            Arrays.fill(this.savedPlayArea[i], 0);
+        }
     }
 
     public Grid(int width, int length) {
@@ -23,6 +30,10 @@ public class Grid {
         this.length = length;
         this.playArea = new int[this.width][this.length];
         this.lastPlayArea = this.playArea;
+        this.savedPlayArea = new int[this.width][this.length];
+        for (int i = 0; i < this.width; i++) {
+            Arrays.fill(this.savedPlayArea[i], 0);
+        }
     }
 
     public int getWidth() {
@@ -45,12 +56,124 @@ public class Grid {
         return this.playArea;
     }
 
+    public int[][] getSavedPlayArea() {
+        return this.savedPlayArea;
+    }
+
+    public void savePlayArea() {
+        this.savedPlayArea = this.playArea;
+    }
+
+    public void revertToSaved() {
+        this.lastPlayArea = this.playArea;
+        this.playArea = this.savedPlayArea;
+    }
+
+    public void clear() {
+        this.lastPlayArea = this.playArea;
+        this.playArea = new int[this.width][this.length];
+    }
+
+    public Grid addGlider(int xPosition, int yPosition, boolean clearSurroundings, int surroundingMargin) {
+        int[][] newArea = this.playArea;
+        if (xPosition < this.width - 3 && yPosition < this.length - 2 && xPosition >= 0 && yPosition >= 0) {
+            this.lastPlayArea = this.playArea;
+            if (clearSurroundings) {
+                for (int y = 0; y < surroundingMargin * 2 + 3; y++) {
+                    for (int x = 0; x < surroundingMargin * 2 + 3; x++) {
+                        try {
+                            newArea[yPosition - surroundingMargin + x][xPosition - surroundingMargin + y] = 0;
+                            if (this.lastPlayArea[yPosition - surroundingMargin + x][xPosition - surroundingMargin + y] == 1) {
+                                System.out.println("Cleared cell [" + (yPosition - surroundingMargin + x) + ", " + (xPosition - surroundingMargin + y) + "]");
+                            }
+                        } catch (ArrayIndexOutOfBoundsException a) {
+                            System.out.println("Could not clear index [" + (xPosition - surroundingMargin + x) + ", " + (yPosition - surroundingMargin + y) + "].");
+                        }
+                    }
+                }
+                try {
+                    newArea[yPosition][xPosition] = 0;
+                    newArea[yPosition + 1][xPosition] = 1;
+                    newArea[yPosition + 2][xPosition] = 0;
+                    newArea[yPosition][xPosition + 1] = 1;
+                    newArea[yPosition + 1][xPosition + 1] = 0;
+                    newArea[yPosition + 2][xPosition + 1] = 0;
+                    newArea[yPosition][xPosition + 2] = 1;
+                    newArea[yPosition + 1][xPosition + 2] = 1;
+                    newArea[yPosition + 2][xPosition + 2] = 1;
+                } catch (ArrayIndexOutOfBoundsException b) {
+                    return this;
+                }
+                this.playArea = newArea;
+                return this;
+            } else {
+                try {
+                    newArea[yPosition][xPosition] = 0;
+                    newArea[yPosition + 1][xPosition] = 1;
+                    newArea[yPosition + 2][xPosition] = 0;
+                    newArea[yPosition][xPosition + 1] = 1;
+                    newArea[yPosition + 1][xPosition + 1] = 0;
+                    newArea[yPosition + 2][xPosition + 1] = 0;
+                    newArea[yPosition][xPosition + 2] = 1;
+                    newArea[yPosition + 1][xPosition + 2] = 1;
+                    newArea[yPosition + 2][xPosition + 2] = 1;
+                } catch (ArrayIndexOutOfBoundsException b) {
+                    return this;
+                }
+                this.playArea = newArea;
+                return this;
+            }
+        }
+
+        return this;
+    }
+
+    public void setCells(int xPosition, int yPosition, int[][] cells) {
+        this.lastPlayArea = this.playArea;
+        int[][] newArea = this.playArea;
+        for (int y = yPosition; y < yPosition + cells.length; y++) {
+            for (int x = xPosition; x < xPosition + cells[0].length; x++) {
+                System.out.println("x: " + x + ", xPosition: " + xPosition + "\ny: " + y + ", yPosition: " + yPosition);
+                newArea[y][x] = cells[y - yPosition][x - xPosition];
+            }
+        }
+        this.playArea = newArea;
+    }
+
+    public void addTumbler(int xPosition, int yPosition) {
+        int[][] tumbler = {
+            {1, 1, 0, 0, 0, 1, 1},
+            {1, 0, 1, 0, 1, 0, 1},
+            {1, 0, 1, 0, 1, 0, 1},
+            {0, 0, 1, 0, 1, 0, 0},
+            {0, 1, 1, 0, 1, 1, 0},
+            {0, 1, 1, 0, 1, 1, 0}};
+        setCells(xPosition, yPosition, tumbler);
+    }
+
+    public void addLine(int xPosition) {
+        if (xPosition >= 0 && xPosition < this.width) {
+            this.lastPlayArea = this.playArea;
+            for (int y = 0; y < this.length; y++) {
+                this.playArea[y][xPosition] = Math.abs(this.playArea[y][xPosition] - 1);
+            }
+        }
+    }
+
     public void setCell(int x, int y, boolean value) {
         this.lastPlayArea = this.playArea;
         if (value) {
             this.playArea[y][x] = 1;
         } else {
             this.playArea[y][x] = 0;
+        }
+    }
+
+    public boolean getCell(int x, int y) {
+        if (this.playArea[y][x] == 1) {
+            return true;
+        } else {
+            return false;
         }
     }
 

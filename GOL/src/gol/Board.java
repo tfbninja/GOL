@@ -219,7 +219,7 @@ public class Board {
                         Scanner chop = new Scanner(x.getLocalizedMessage());
                         System.out.println("Tried to click " + chop.nextInt());
                     } catch (NullPointerException v) {
-                        System.out.println("wack");
+                        System.out.println("Caught out of bounds click");
                     }
                 }
             }

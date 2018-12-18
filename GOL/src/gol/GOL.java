@@ -1,41 +1,61 @@
 package gol;
 
-import java.util.Arrays;
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
-/**
- *
- * @author Tim Barber
- */
-public class GOL {
+public class GOL extends Application {
 
-    public static void main(String[] args) {
-        System.out.println("\nTim Barber\tNov 2018\n"); //Header
+    private static final int WIDTH = 618;
+    private static final int HEIGHT = 700;
+    private int startTime;
 
-        Grid grid = new Grid();
-        System.out.println(Arrays.deepToString(grid.getSavedPlayArea()));
+    public void start(Stage stage) {
+
+        HBox root = new HBox();
+
+        Board board = new Board(WIDTH, HEIGHT);
+        Block bg = new Block(0, 0, WIDTH, HEIGHT, Color.BLACK);
+        bg.draw(board.getCanvas());
+
+        board.drawBlocks();
+
+        root.getChildren().add(board.getCanvas());
+
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        stage.setScene(scene);
+        stage.setTitle("Conway's Game of Life");
+        stage.show();
+
+        scene.setOnMousePressed(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                board.mouseClicked(event);
+                board.drawBlocks();
+            }
+        });
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent eventa) {
+                board.nextGen();
+                board.drawBlocks();
+            }
+        });
+        /*
+        scene.setOnMouseMoved(new EventHandler<MouseEvent>() {
+         * public void handle(MouseEvent eventb) {
+         *
+         * board.drawBlocks();
+         * }
+         * });
+         *
+         */
     }
 
+    public static void main(String args[]) {
+        launch(args);
+    }
 }
-/*
- * The MIT License
- *
- * Copyright (c) 2018 Tim Barber.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
